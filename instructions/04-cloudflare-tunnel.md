@@ -16,17 +16,6 @@ What gets exposed:
 
 The VPN and the tunnel don't conflict. The VPN protects what qBittorrent sends out; the tunnel is only how you reach its web page. qBittorrent has no network of its own, so the tunnel targets **`gluetun`**, never `qbittorrent`.
 
-## Read this first: risks
-
-This setup has **no Cloudflare Access** (the email-code checkpoint). Every service is protected only by its own login page, which means:
-
-- **Anyone who finds the hostnames can reach the login pages** and try passwords. Bots scan the internet for exactly these apps.
-- **Use a long, unique password for every account** on all five services. A password manager helps.
-- **Set the logins up before you add the hostnames** (step 4 below, then step 5), so the pages are never open even for a minute.
-- **qBittorrent locks out an address after several failed logins, from memory (unverified).** All tunnel visitors share one address, so someone guessing passwords could lock you out as well. If that happens, restart the qBittorrent container: `sudo docker restart qbittorrent`.
-- **Keep the apps updated** (`docker compose pull`, see the main README), since a login page doesn't protect against a bug in the app itself.
-- **To switch remote access off at any time**, see "Turning it off" at the bottom.
-
 ## 1. A domain name
 
 The tunnel needs a domain you control, added to Cloudflare. The friend needs one. Options:
@@ -99,7 +88,7 @@ Tip: you don't have to expose everything. Each hostname you leave out is one les
 | Tunnel not Healthy | `sudo docker logs cloudflared`. Wrong or truncated token in `.env`; re-copy only the long string. |
 | 502 Bad Gateway on an arr hostname | The URL in the public hostname is wrong. Use the container name and port exactly as in the table, and confirm the container runs (`sudo docker ps`). |
 | qBittorrent page loads but login fails or says Unauthorized | qBittorrent can reject logins that come through a proxy. In Tools > Options > Web UI, add `qbit.example.com` to **Server domains**, or untick **Enable Host header validation** (and, if needed, CSRF protection). This is general qBittorrent behaviour, so try it if you see the problem. |
-| Locked out of qBittorrent after failed logins | `sudo docker restart qbittorrent` (see the risk above). |
+| Locked out of qBittorrent after failed logins | `sudo docker restart qbittorrent`. |
 | 502 or timeout on Jellyfin only | Containers can't reach the NAS's own address. Check the IP and port, then in DSM check Control Panel > Security > Firewall isn't blocking the Docker network. |
 | Jellyfin works on the LAN but the apps fail remotely | Use `https://jellyfin.example.com` with no port as the server address. |
 
