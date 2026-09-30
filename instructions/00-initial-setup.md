@@ -1,6 +1,6 @@
 # 0. Initial setup: preparing the NAS and moving the files over
 
-This prepares the Synology (Container Manager, the `arr` user, shared folders, SSH) and gets the project folder onto it. No Git is needed on the NAS. Do it before the `.env` guides (`01` to `06`), which need the `arr` user this page creates.
+This prepares the Synology (Container Manager, the `arr` user, shared folders, SSH) and gets the project folder onto it. No Git is needed on the NAS. Do it before the `.env` guides (`01` to `05`), which need the `arr` user this page creates.
 
 This is written for DSM 7.2+. Menu names may differ slightly between DSM versions.
 
@@ -114,12 +114,12 @@ ls -a /volume1/docker/arr-stack
 
 ## 6. Create the `.env` file
 
-`.env` holds your secrets. Create it from the template once you've read the guides for its values (`01` to `06`); you can come back to this step afterwards. Pick one:
+`.env` holds your secrets. Create it from the template once you've read the guides for its values (`01` to `05`); you can come back to this step afterwards. Pick one:
 
 **Option A: edit it on your computer, then upload it**
 
 1. In your unzipped folder, copy `.env.example` and rename the copy to **`.env`**. Windows hides file extensions by default; turn on View > Show > File name extensions so it doesn't end up called `.env.txt`.
-2. Fill it in with Notepad, following the guides in this folder (`01` to `06`).
+2. Fill it in with Notepad, following the guides in this folder (`01` to `05`).
 3. Upload `.env` to `docker/arr-stack` the same way as in step 4.
 4. **Delete the copy on your computer**, and empty the Recycle Bin, since it holds your VPN key.
 

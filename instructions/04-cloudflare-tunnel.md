@@ -1,4 +1,4 @@
-# 5. Cloudflare Tunnel (optional)
+# 4. Cloudflare Tunnel (optional)
 
 Variable: `CLOUDFLARE_TUNNEL_TOKEN`
 

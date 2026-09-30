@@ -6,8 +6,7 @@ Start with the initial setup (preparing the NAS and getting the files onto it), 
 1. [Host / user](01-host-user.md): user IDs, timezone, folders, home network
 2. [Ports](02-ports.md)
 3. [VPN (required)](03-vpn-required.md): PrivadoVPN username and password
-4. [VPN (optional)](04-vpn-optional.md): country or server filters (can be skipped)
-5. [Cloudflare Tunnel](05-cloudflare-tunnel.md): only if you want outside access
-6. [Setup script switches](06-setup-script-switches.md)
+4. [Cloudflare Tunnel](04-cloudflare-tunnel.md): only if you want outside access
+5. [Setup script switches](05-setup-script-switches.md)
 
 After each section, `sh setup.sh --check` tells you what is still wrong.
