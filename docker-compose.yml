@@ -100,8 +100,9 @@ services:
     restart: unless-stopped
 
   # Optional: only starts with `docker compose --profile tunnel up -d`.
-  # Public hostnames in the Cloudflare dashboard point at sonarr:8989, radarr:7878 or
-  # prowlarr:9696. NEVER expose qBittorrent through it, and put Cloudflare Access in front.
+  # Public hostnames in the Cloudflare dashboard point at sonarr:8989, radarr:7878,
+  # prowlarr:9696, or gluetun:8080 for qBittorrent (it has no network of its own, so never
+  # `qbittorrent`). Put Cloudflare Access in front of all of those.
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
