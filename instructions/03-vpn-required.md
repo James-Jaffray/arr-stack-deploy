@@ -4,7 +4,7 @@ Variables: `VPN_PROVIDER`, `VPN_TYPE`, `WIREGUARD_PRIVATE_KEY`, `WIREGUARD_ADDRE
 
 This is the most important section. You need a paid account with a VPN provider that Gluetun supports. Provider websites change often, so the Gluetun wiki page for your provider is the final word on the exact steps: <https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers>
 
-**Treat the WireGuard key like a password.** Never commit it, paste it into chat, or copy your laptop's `.env` to the client's NAS. If it leaks, generate a new one at your provider.
+**Treat the WireGuard key like a password.** Never commit it, paste it into chat, or put it anywhere except the NAS's `.env`. If it leaks, generate a new one at your provider.
 
 ## `VPN_PROVIDER`
 
@@ -17,7 +17,7 @@ The provider name spelled the way Gluetun expects, all lower case. Examples from
 ## `VPN_TYPE`
 
 - `wireguard` (recommended): faster and simpler. Needs the two WireGuard values below.
-- `openvpn`: use it if your provider only offers OpenVPN in Gluetun, or if WireGuard won't work on Docker Desktop during the laptop test. Then uncomment `OPENVPN_USER` and `OPENVPN_PASSWORD` in the optional section (see `04-vpn-optional.md`); the setup script then requires them and no longer needs the two WireGuard values.
+- `openvpn`: use it if your provider only offers OpenVPN in Gluetun, or if WireGuard won't connect. Then uncomment `OPENVPN_USER` and `OPENVPN_PASSWORD` in the optional section (see `04-vpn-optional.md`); the setup script then requires them and no longer needs the two WireGuard values.
 
 ## `WIREGUARD_PRIVATE_KEY` and `WIREGUARD_ADDRESSES`
 
@@ -42,7 +42,7 @@ Both come from a WireGuard configuration your provider generates for you.
 6. Ignore the `[Peer]` values (`PublicKey`, `Endpoint`) for now. You only need them if `VPN_PROVIDER=custom` (see `04-vpn-optional.md`).
 7. Delete the downloaded `.conf` file when done, or keep it somewhere safe. It is a secret too.
 
-Some providers limit how many devices or keys one account can have. Generating a key for the laptop test and another for the NAS may use up two slots.
+Some providers limit how many devices or keys one account can have; the NAS uses one.
 
 ## `SERVER_COUNTRIES`
 

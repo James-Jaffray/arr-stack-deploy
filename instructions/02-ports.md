@@ -26,8 +26,7 @@ Leave it at `0.0.0.0` unless you have a reason.
 
 Leave the defaults unless something else already uses a port. To find out:
 
-- **Windows (laptop test):** in PowerShell run `netstat -ano | findstr :8080` (change the number). No output means it is free.
-- **Synology:** `setup.sh` checks for you, and warns if a port is taken. DSM itself uses 5000/5001, and Jellyfin usually uses 8096, so the defaults normally don't clash. `8080` is the one most often taken by other packages.
+- **Synology:** `setup.sh` checks for you and warns if a port is taken. To check by hand over SSH: `sudo netstat -tln | grep ':8080 '` (change the number); no output means it is free. DSM itself uses 5000/5001, and Jellyfin usually uses 8096, so the defaults normally don't clash. `8080` is the one most often taken by other packages.
 
 If you change a port, pick any unused number from 1024 to 65535, and use it in the browser too (for example `http://<nas-ip>:8081`).
 

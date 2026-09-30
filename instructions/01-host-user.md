@@ -2,46 +2,55 @@
 
 Variables: `PUID`, `PGID`, `TZ`, `CONFIG_DIR`, `DATA_DIR`, `LAN_SUBNET`
 
-Fill these in first. The values differ between the **Windows laptop test** and the **Synology**; both are given.
+Everything here is for the Synology NAS (DSM 7.2+). Do the DSM steps first; the values come out of them.
+
+## Before you start: DSM setup
+
+1. Package Center: install **Container Manager**.
+2. Control Panel > User & Group: create a dedicated user (for example `arr`).
+3. Control Panel > Shared Folder: create two shared folders, **`docker`** and **`data`**, on the **same volume**. Give the `arr` user read/write on both.
+4. Control Panel > Terminal & SNMP: turn SSH on temporarily. Turn it off again when you're finished.
 
 ## `PUID` and `PGID`
 
 The numeric user and group IDs the apps run as. They decide who owns the files the apps create.
 
-- **Windows laptop test:** leave both at `1000`. Files on a Windows drive have no Linux owners, so the numbers don't matter there.
-- **Synology:**
-  1. Control Panel > User & Group: create a dedicated user (for example `arr`).
-  2. Control Panel > Terminal & SNMP: turn SSH on temporarily.
-  3. SSH in and run `id arr`.
-  4. Output looks like `uid=1026(arr) gid=100(users)`. The first number is `PUID`, the second is `PGID`.
-  5. Turn SSH back off afterwards.
+1. SSH in and run `id arr` (use your user's name).
+2. Output looks like `uid=1026(arr) gid=100(users)`. The first number is `PUID`, the second is `PGID`.
+
+Don't leave the placeholder `1000` unless `id` really says so; wrong IDs cause "permission denied" when importing.
 
 ## `TZ`
 
-Your timezone as a name from the standard list, such as `America/Edmonton` or `America/Toronto`. It is not a Windows-style name. Find yours at <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> (use the "TZ identifier" column). The example default is Alberta, so change it if you're elsewhere.
+Your timezone as a name from the standard list, such as `America/Edmonton` or `America/Toronto`. Find yours at <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> (use the "TZ identifier" column). DSM shows what it is set to in Control Panel > Regional Options. The example default is Alberta, so change it if you're elsewhere.
 
 ## `CONFIG_DIR`
 
-The folder where each app keeps its settings.
+The folder where each app keeps its settings. Put the repo in the `docker` shared folder, at `/volume1/docker/arr-stack`, and use:
 
-- **Laptop test:** leave as `./config`. It is created inside the repo folder.
-- **Synology:** `/volume1/docker/arr-stack/config`.
+```text
+CONFIG_DIR=/volume1/docker/arr-stack/config
+```
+
+If your shared folders are on another volume, `volume1` changes to `volume2` and so on. To confirm the real path: File Station, right-click the `docker` folder > Properties, and read "Location".
 
 ## `DATA_DIR`
 
-The single root folder that will hold `torrents/` and `media/`. Keeping both under one root on one volume is what lets finished downloads be hardlinked instead of copied.
+The single root folder that will hold `torrents/` and `media/`. Keeping both under one root on one volume is what lets finished downloads be hardlinked instead of copied. Use the `data` shared folder's path:
 
-- **Laptop test:** comment out the `/volume1/data` line and uncomment `DATA_DIR=./data`.
-- **Synology:** `/volume1/data` (the shared folder named `data`, on the same volume as your `docker` folder).
+```text
+DATA_DIR=/volume1/data
+```
+
+If your existing Jellyfin library lives somewhere else, either move it into `data/media/` first or put the library there; hardlinks only work inside one volume.
 
 ## `LAN_SUBNET`
 
 Your home network written as a range. It lets your other devices reach qBittorrent's web page through the VPN firewall.
 
-1. In PowerShell run `ipconfig`.
-2. Under your active adapter (Wi-Fi or Ethernet), find `IPv4 Address`, for example `192.168.1.57`.
-3. Find the `Subnet Mask`, for example `255.255.255.0`.
-4. Keep the first three numbers of the address, end with `.0`, then add a slash and the mask length:
+1. DSM: Control Panel > Network > Network Interface. Select your active connection (LAN 1) and open Edit / read its details.
+2. Find the NAS's **IP address**, for example `192.168.1.20`, and its **subnet mask**, for example `255.255.255.0`.
+3. Keep the first three numbers of the address, end with `.0`, then add a slash and the mask length:
 
    | Subnet mask | Suffix |
    | --- | --- |
@@ -50,12 +59,13 @@ Your home network written as a range. It lets your other devices reach qBittorre
    | `255.255.0.0` | `/16` |
 
    Almost all home networks are `/24`, so the example gives `192.168.1.0/24`.
-5. On the Synology use the network the NAS is on. It is normally the same as your laptop's.
 
 ## Check it
 
+Copy the repo to `/volume1/docker/arr-stack`, create `.env`, then over SSH:
+
 ```sh
-sh setup.sh --check
+sudo sh setup.sh --check
 ```
 
-It flags a non-numeric `PUID`/`PGID` and a `LAN_SUBNET` that isn't in `a.b.c.d/nn` form.
+It flags a non-numeric `PUID`/`PGID` and a `LAN_SUBNET` that isn't in `a.b.c.d/nn` form. Running it as `sudo` lets `setup.sh` fix folder ownership later.
