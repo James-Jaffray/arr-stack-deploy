@@ -1,39 +1,27 @@
-# 4. VPN (optional, provider dependent)
+# 4. VPN (optional)
 
-Variables: `SERVER_NAMES`, `VPN_PORT_FORWARDING`, `WIREGUARD_PUBLIC_KEY`, `WIREGUARD_ENDPOINT_IP`, `WIREGUARD_ENDPOINT_PORT`, `WIREGUARD_PRESHARED_KEY`, `OPENVPN_USER`, `OPENVPN_PASSWORD`
+Variables: `SERVER_COUNTRIES`, `SERVER_NAMES`, `VPN_PORT_FORWARDING`, and a WireGuard block that Privado doesn't use.
 
-All of these are commented out in `.env.example`. **Uncomment a line only when your provider needs it.** Anything you leave commented is passed to Gluetun as empty, which it ignores (tested against the current image). Most people using Mullvad or a similar provider with WireGuard need none of them.
+Everything here is commented out in `.env.example`. **You can skip this page.** With nothing set, Gluetun picks a Privado server for you, exactly as your current container does (its `SERVER_COUNTRIES`, `SERVER_CITIES` and similar settings are all empty). Anything you leave commented is passed to Gluetun as empty, which it ignores (tested against the current image).
 
-When in doubt, check your provider's page: <https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers>
+Gluetun's Privado page: <https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/privado.md>
 
-## OpenVPN login: `OPENVPN_USER`, `OPENVPN_PASSWORD`
+## `SERVER_COUNTRIES`
 
-Needed only when `VPN_TYPE=openvpn`. Both become **required** then, and `setup.sh` checks them.
-
-- These are usually **not** your normal website login. Many providers issue separate "OpenVPN/IKEv2 credentials" on a manual-setup page; some (for example Mullvad) use your account number as the user. Check the provider's Gluetun page.
-- Uncomment both lines and fill them in.
+Use it if you want your traffic to exit from a particular country. Uncomment the line and give a country name the way Privado spells it, for example `SERVER_COUNTRIES=Canada`. Several can be comma separated. If you set a country Privado has no servers in, Gluetun fails to start and logs that no server matches; remove the line or fix the name.
 
 ## `SERVER_NAMES`
 
-Pin Gluetun to specific server hostnames instead of any server in the country. Use it if one server is fast and reliable for you, or your provider asks for it. The valid names are on your provider's page or on its server list. Separate several with commas. Most people leave it off.
+Pins Gluetun to specific servers. The Privado page calls this kind of filter "the narrowest filter" and warns that if a pinned server is ever removed, the container will fail until you change it. Avoid it unless you have a specific reason. (Gluetun's Privado page describes the same idea under the variable name `SERVER_HOSTNAMES`; `SERVER_NAMES` is what this repo's compose file passes through.)
 
 ## `VPN_PORT_FORWARDING`
 
-Set `on` to ask the provider for an inbound port, which can improve torrent connectivity. It only works with providers Gluetun supports for this (per its docs: Private Internet Access, Perfect Privacy, PrivateVPN and ProtonVPN), and some need a specially generated config. Leave it off unless you know you need it. If you enable it, Gluetun writes the forwarded port to a file; putting that port into qBittorrent is a manual step, not automated here.
+Not available for Privado in Gluetun (it supports forwarding for only a few other providers), so leave it off.
 
-## The `custom` provider values
+## WireGuard block
 
-Only used when `VPN_PROVIDER=custom` (a provider Gluetun doesn't know). Copy them from the `[Peer]` section of the `.conf` file you downloaded (see `03-vpn-required.md`):
-
-| Variable | Where it comes from |
-| --- | --- |
-| `WIREGUARD_PUBLIC_KEY` | `PublicKey =` |
-| `WIREGUARD_ENDPOINT_IP` | the address part of `Endpoint = 203.0.113.5:51820` (`203.0.113.5`) |
-| `WIREGUARD_ENDPOINT_PORT` | the port part of `Endpoint` (`51820`) |
-| `WIREGUARD_PRESHARED_KEY` | `PresharedKey =`, only if the file has one |
-
-For a provider Gluetun knows, leave all four commented out.
+Only for a provider that uses WireGuard; Privado does not in Gluetun. Ignore it. It is covered in "Using a different provider later" in [`03-vpn-required.md`](03-vpn-required.md).
 
 ## Check it
 
-`sh setup.sh --check` only insists on the two OpenVPN values, and only when `VPN_TYPE=openvpn`. Everything else here is validated by Gluetun when the stack starts; `docker logs gluetun` shows any complaint.
+`sh setup.sh --check` doesn't validate these. Gluetun checks them when the stack starts; `sudo docker logs gluetun` shows any complaint.

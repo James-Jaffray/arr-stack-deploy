@@ -1,57 +1,57 @@
-# 3. VPN (required)
+# 3. VPN (required): PrivadoVPN
 
-Variables: `VPN_PROVIDER`, `VPN_TYPE`, `WIREGUARD_PRIVATE_KEY`, `WIREGUARD_ADDRESSES`, `SERVER_COUNTRIES`
+Variables: `VPN_PROVIDER`, `VPN_TYPE`, `OPENVPN_USER`, `OPENVPN_PASSWORD`
 
-This is the most important section. You need a paid account with a VPN provider that Gluetun supports. Provider websites change often, so the Gluetun wiki page for your provider is the final word on the exact steps: <https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers>
+This setup is built around **PrivadoVPN**, the provider your existing Gluetun container uses. You need an active Privado subscription. Gluetun's own page for it: <https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/privado.md>
 
-**Treat the WireGuard key like a password.** Never commit it, paste it into chat, or put it anywhere except the NAS's `.env`. If it leaks, generate a new one at your provider.
+**Treat the username and password like any other password.** Never commit them, paste them into chat, or put them anywhere except the NAS's `.env`.
 
-## `VPN_PROVIDER`
+## `VPN_PROVIDER` and `VPN_TYPE`
 
-The provider name spelled the way Gluetun expects, all lower case. Examples from the Gluetun docs: `mullvad`, `protonvpn`, `private internet access`, `nordvpn`, `airvpn`, `windscribe`, `surfshark`, `ivpn`, `custom`.
+Already set for you in `.env.example`:
 
-- Find yours in the provider list linked above; the page for each provider shows the exact name.
-- Not every provider supports both WireGuard and OpenVPN in Gluetun. The provider page tells you which.
-- Names with spaces need no quotes in `.env`.
+```text
+VPN_PROVIDER=privado
+VPN_TYPE=openvpn
+```
 
-## `VPN_TYPE`
+Leave them as they are. Gluetun supports Privado over **OpenVPN only**, so there is no WireGuard key to find, and `VPN_TYPE` must stay `openvpn`.
 
-- `wireguard` (recommended): faster and simpler. Needs the two WireGuard values below.
-- `openvpn`: use it if your provider only offers OpenVPN in Gluetun, or if WireGuard won't connect. Then uncomment `OPENVPN_USER` and `OPENVPN_PASSWORD` in the optional section (see `04-vpn-optional.md`); the setup script then requires them and no longer needs the two WireGuard values.
+## `OPENVPN_USER` and `OPENVPN_PASSWORD`
 
-## `WIREGUARD_PRIVATE_KEY` and `WIREGUARD_ADDRESSES`
+These are your Privado VPN login details. They are **not your email address**: Privado's own manual-setup guides state that the email can't be used as the username for a manual setup.
 
-Both come from a WireGuard configuration your provider generates for you.
+1. Sign in to the Privado web account at <https://app.privadovpn.com>.
+2. Find your VPN **username** on your account page, shown next to the password. Privado's help pages call this your "client page"; the menu name may differ from what's written here.
+3. Copy the username into `OPENVPN_USER` and the password into `OPENVPN_PASSWORD`.
+4. Save `.env`. No quotes are needed, but if the password contains spaces or a `#`, wrap it in double quotes.
 
-1. Log in to your provider's website and find its WireGuard configuration generator (often under "WireGuard", "Manual setup" or "Devices"). If it asks for a platform choose "Linux" or "Router".
-2. Generate a configuration and **download the `.conf` file**. Some providers only show the text on screen, which works too.
-3. Open the file in Notepad. It looks like this (values here are fake):
+If you're stuck, open a support ticket with Privado and ask for "the username and password for a manual OpenVPN setup".
 
-   ```ini
-   [Interface]
-   PrivateKey = wOEI9rqqbDwnN8/Bpp22sVz48T71vJ4fYmFWujulwUU=
-   Address = 10.64.222.21/32
+**Your own account on your own NAS:** you can read the working values from your existing Gluetun container in Container Manager (Container > gluetun > Details > Environment). For the friend's NAS, use the friend's own Privado account.
 
-   [Peer]
-   PublicKey = ...
-   Endpoint = 203.0.113.5:51820
-   ```
+**Connection limit:** Privado's help says a Premium account supports up to 10 connections. The NAS's Gluetun counts as one.
 
-4. Copy the value after `PrivateKey =` into `WIREGUARD_PRIVATE_KEY` (it usually ends in `=`; keep it).
-5. Copy the value after `Address =` into `WIREGUARD_ADDRESSES`, for example `10.64.222.21/32`. If there are two addresses (an IPv4 and an IPv6 one), Gluetun accepts them comma separated; if unsure use the IPv4 one.
-6. Ignore the `[Peer]` values (`PublicKey`, `Endpoint`) for now. You only need them if `VPN_PROVIDER=custom` (see `04-vpn-optional.md`).
-7. Delete the downloaded `.conf` file when done, or keep it somewhere safe. It is a secret too.
+## Optional filters
 
-Some providers limit how many devices or keys one account can have; the NAS uses one.
-
-## `SERVER_COUNTRIES`
-
-The country your traffic exits from. Use a name your provider actually has servers in, for example `Canada`. Case doesn't matter. The provider's page in the Gluetun wiki lists what is accepted; a name the provider doesn't have will stop Gluetun finding a server.
+With nothing set, Gluetun picks a Privado server for you, the same as your current container does. To choose a country or a specific server, see `04-vpn-optional.md`.
 
 ## Check it
 
 ```sh
-sh setup.sh --check
+cd /volume1/docker/arr-stack
+sudo sh setup.sh --check
 ```
 
-It lists every value still set to `CHANGE_ME`. It cannot tell whether the key is right; the real test is `docker compose up -d` and then `sh scripts/verify.sh`, which confirms gluetun is healthy and that qBittorrent's public IP differs from yours. If gluetun never becomes healthy, run `docker logs gluetun` and read the last few lines.
+It lists `OPENVPN_USER` or `OPENVPN_PASSWORD` if either is still `CHANGE_ME` or empty. It can't tell whether the login is correct. The real test is starting the stack and then running `sudo sh scripts/verify.sh`, which confirms gluetun is healthy and that qBittorrent's public IP differs from yours.
+
+If gluetun never becomes healthy, run `sudo docker logs gluetun` and read the last lines. A line containing `AUTH_FAILED` means Privado rejected the username or password, so re-copy them from your account page (and check you used the username, not the email).
+
+## Using a different provider later
+
+Only if you ever switch away from Privado:
+
+1. Set `VPN_PROVIDER` to the provider's name from <https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers>.
+2. For a WireGuard provider set `VPN_TYPE=wireguard`, and uncomment the WireGuard block in `.env`. Fill `WIREGUARD_PRIVATE_KEY` and `WIREGUARD_ADDRESSES` from the `PrivateKey` and `Address` lines of a WireGuard `.conf` file generated on the provider's site.
+3. For an OpenVPN provider keep `VPN_TYPE=openvpn` and use the login that provider gives you for manual setups.
+4. `setup.sh` switches its checks to match `VPN_TYPE`.

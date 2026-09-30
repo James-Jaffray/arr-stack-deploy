@@ -114,7 +114,7 @@ Back up `CONFIG_DIR` and `.env` regularly. Images use `:latest`; once the client
 
 | Problem | Likely cause / fix |
 | --- | --- |
-| gluetun never healthy | `docker logs gluetun`. Wrong provider name, key or address; missing tun device (Synology boot task); on Docker Desktop try `VPN_TYPE=openvpn`. |
+| gluetun never healthy | `docker logs gluetun`. Wrong Privado username or password (`AUTH_FAILED` in the log; use the username, not the email), or wrong provider name; missing tun device (Synology boot task); on Docker Desktop try `VPN_TYPE=openvpn`. |
 | qBittorrent UI unreachable from LAN | `LAN_SUBNET` wrong (must match your home network), or `BIND_ADDR=127.0.0.1`. |
 | qBittorrent dead after gluetun recreated | `docker restart qbittorrent` (it is attached to the old network). |
 | Connection refused from Sonarr/Radarr | Download client host must be `gluetun`, port `8080`. |
@@ -128,7 +128,7 @@ Back up `CONFIG_DIR` and `.env` regularly. Images use `:latest`; once the client
 
 Before the visit
 - [ ] DSM version (7.2+) and CPU model
-- [ ] VPN account and WireGuard details (private key, address, provider name)
+- [ ] VPN account: the client's own Privado username and password (not their email), or details for another provider
 - [ ] Where the media lives; free space
 - [ ] Home subnet (router LAN settings)
 - [ ] Indexer logins
