@@ -1,7 +1,8 @@
 # Instructions: filling in `.env`
 
-One guide per section of `.env.example`. Work through them in order.
+Start with the initial setup (getting the files onto the NAS), then one guide per section of `.env.example`. Work through them in order.
 
+0. [Initial setup](00-initial-setup.md): move the project files onto the NAS
 1. [Host / user](01-host-user.md): user IDs, timezone, folders, home network
 2. [Ports](02-ports.md)
 3. [VPN (required)](03-vpn-required.md): provider, WireGuard key and address

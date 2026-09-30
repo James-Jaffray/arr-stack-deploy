@@ -47,7 +47,7 @@ SSH lets you type commands on the NAS from another computer. You need it here to
 The numeric user and group IDs the apps run as. They decide who owns the files the apps create.
 
 1. [SSH into the NAS](#how-to-ssh-into-the-nas) and run `id arr` (use your dedicated user's name). It works even though you're logged in as your admin account.
-2. Output looks like `uid=1026(arr) gid=100(users)`. The first number is `PUID`, the second is `PGID`.
+2. Output looks like `uid=1026(arr) gid=1000(users)`. The first number is `PUID`, the second is `PGID`.
 
 Don't leave the placeholder `1000` unless `id` really says so; wrong IDs cause "permission denied" when importing.
 
