@@ -99,8 +99,8 @@ On a working build, export backups from Sonarr, Radarr and Prowlarr (Settings > 
 2. Put `CLOUDFLARE_TUNNEL_TOKEN=...` in `.env`.
 3. `docker compose --profile tunnel up -d`
 4. In the tunnel, add public hostnames targeting `http://sonarr:8989`, `http://radarr:7878`, `http://prowlarr:9696`, `http://gluetun:8080` (qBittorrent: use `gluetun`, never `qbittorrent`) and, for Jellyfin, `http://<nas-ip>:8096`.
-5. **Put Cloudflare Access in front of Sonarr, Radarr, Prowlarr and qBittorrent.** These apps are not hardened for the public internet. Jellyfin is left without Access so its apps work; it relies on its own login.
-6. Turn on each app's own login, and read the risks (including Cloudflare's rules on video). The full walkthrough is in [`instructions/04-cloudflare-tunnel.md`](instructions/04-cloudflare-tunnel.md).
+5. There is no Cloudflare Access here: each app is protected only by its own login. Turn those logins on (long unique passwords) **before** adding the hostnames.
+6. Read the risks and follow the full walkthrough in [`instructions/04-cloudflare-tunnel.md`](instructions/04-cloudflare-tunnel.md).
 
 ## 7. Updating
 

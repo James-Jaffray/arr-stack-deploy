@@ -8,19 +8,24 @@ What gets exposed:
 
 | Service | Address the tunnel points at | Protection |
 | --- | --- | --- |
-| Sonarr | `http://sonarr:8989` | Cloudflare Access + the app's own login |
-| Radarr | `http://radarr:7878` | Cloudflare Access + the app's own login |
-| Prowlarr | `http://prowlarr:9696` | Cloudflare Access + the app's own login |
-| qBittorrent | `http://gluetun:8080` | Cloudflare Access + qBittorrent's own login |
-| Jellyfin | `http://<nas-ip>:8096` | Jellyfin's own login only (so its apps work) |
+| Sonarr | `http://sonarr:8989` | The app's own login |
+| Radarr | `http://radarr:7878` | The app's own login |
+| Prowlarr | `http://prowlarr:9696` | The app's own login |
+| qBittorrent | `http://gluetun:8080` | qBittorrent's own login |
+| Jellyfin | `http://<nas-ip>:8096` | Jellyfin's own login |
 
 The VPN and the tunnel don't conflict. The VPN protects what qBittorrent sends out; the tunnel is only how you reach its web page. qBittorrent has no network of its own, so the tunnel targets **`gluetun`**, never `qbittorrent`.
 
 ## Read this first: risks
 
-- **Jellyfin has no Cloudflare Access in front.** Jellyfin's phone and TV apps can't get past Access's login page, so Jellyfin is protected by its own login alone. Use a strong, unique password for every Jellyfin user, and no default or shared accounts.
-- **Cloudflare's rules on video.** Cloudflare's terms for the free plan say serving video as a disproportionate share of traffic isn't allowed (see the [Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/)). Reports about personal Jellyfin use through a tunnel conflict: some say it is tolerated, others say it is still off-limits. This guide can't settle it. The worst case is Cloudflare suspending the tunnel. If that matters, the alternative for Jellyfin is something like Tailscale instead of Cloudflare.
-- **Anyone who finds the hostnames can reach the login pages.** That's why Sonarr, Radarr, Prowlarr and qBittorrent also sit behind Access.
+This setup has **no Cloudflare Access** (the email-code checkpoint). Every service is protected only by its own login page, which means:
+
+- **Anyone who finds the hostnames can reach the login pages** and try passwords. Bots scan the internet for exactly these apps.
+- **Use a long, unique password for every account** on all five services. A password manager helps.
+- **Set the logins up before you add the hostnames** (step 4 below, then step 5), so the pages are never open even for a minute.
+- **qBittorrent locks out an address after several failed logins, from memory (unverified).** All tunnel visitors share one address, so someone guessing passwords could lock you out as well. If that happens, restart the qBittorrent container: `sudo docker restart qbittorrent`.
+- **Keep the apps updated** (`docker compose pull`, see the main README), since a login page doesn't protect against a bug in the app itself.
+- **To switch remote access off at any time**, see "Turning it off" at the bottom.
 
 ## 1. A domain name
 
@@ -53,9 +58,19 @@ cd /volume1/docker/arr-stack
 sudo docker compose --profile tunnel up -d
 ```
 
-Back in the Cloudflare tunnel page, its status should turn **Healthy**.
+Back in the Cloudflare tunnel page, its status should turn **Healthy**. No hostnames exist yet, so nothing is reachable.
 
-## 4. Add the public hostnames
+## 4. Turn on each app's own login (before adding hostnames)
+
+This is your only protection, so do it first. Open each app from inside the home network.
+
+- **Sonarr, Radarr, Prowlarr:** Settings > General > Security. Set Authentication to a login form (for example **Forms**), and set **Authentication Required** to **Enabled**, not "Disabled for Local Addresses". Tunnel traffic reaches the apps from inside the Docker network, which they treat as local, so the "local addresses" option would skip the login entirely. Menu wording differs a little between versions. Set a username and a strong password.
+- **qBittorrent:** Tools > Options > Web UI. Change the password from the temporary one to a strong one. Leave "Bypass authentication for clients on localhost" and "Bypass authentication for clients in whitelisted IP subnets" **off**.
+- **Jellyfin:** strong unique passwords for every user, no shared or default accounts.
+
+Check: from a device on the home network, open each app in a private browser window. Each must ask for a login.
+
+## 5. Add the public hostnames
 
 In the tunnel: **Public Hostname** tab > **Add a public hostname**, once per row. Type is `HTTP`.
 
@@ -69,31 +84,13 @@ In the tunnel: **Public Hostname** tab > **Add a public hostname**, once per row
 
 Use the NAS's real IP for `<nas-ip>` (for example `192.168.1.20`) and Jellyfin's real port if it isn't the default `8096`. Jellyfin isn't part of this project's containers, so the tunnel reaches it through the NAS's address. If that fails, the DSM firewall may be blocking containers from reaching the NAS itself; see Troubleshooting.
 
-**Do step 5 before you rely on these addresses.** Until Access is set up, the four arr and qBittorrent hostnames are open to anyone who finds them.
+Tip: you don't have to expose everything. Each hostname you leave out is one less login page on the internet. If you only need Jellyfin remotely, add only that row.
 
-## 5. Put Cloudflare Access in front of Sonarr, Radarr, Prowlarr and qBittorrent
+## 6. Test it
 
-Not Jellyfin.
-
-1. Zero Trust > Access > Applications > **Add an application** > **Self-hosted**.
-2. Name it (for example `arr-apps`). Add the four hostnames: `sonarr.example.com`, `radarr.example.com`, `prowlarr.example.com`, `qbit.example.com`.
-3. Add a policy: Action **Allow**, rule **Emails** containing only the email addresses that should get in.
-4. Login method: the default **One-time PIN** (Cloudflare emails a code) is fine.
-5. Save.
-
-## 6. Turn on each app's own login
-
-Access is the outer door; the apps need their own lock too.
-
-- **Sonarr, Radarr, Prowlarr:** Settings > General > Security. Set Authentication to a login form (for example **Forms**), and set **Authentication Required** to **Enabled**, not "Disabled for Local Addresses". Tunnel traffic reaches the apps from inside the Docker network, which they treat as local, so the "local addresses" option would skip the login entirely. Menu wording differs a little between versions. Set a username and strong password.
-- **qBittorrent:** Tools > Options > Web UI. Set a strong password. Leave "Bypass authentication for clients on localhost" and "Bypass authentication for clients in whitelisted IP subnets" **off**.
-- **Jellyfin:** strong unique passwords for every user.
-
-## 7. Test it
-
-1. On a phone with Wi-Fi **off** (mobile data), open `https://sonarr.example.com`. You should get the Cloudflare code page, then the Sonarr login.
-2. Repeat for the other three.
-3. Open `https://jellyfin.example.com`. You should get Jellyfin's own login directly, with no Cloudflare page. In the Jellyfin phone or TV app, use that same address as the server.
+1. On a phone with Wi-Fi **off** (mobile data), open `https://sonarr.example.com`. You should get Sonarr's login page, not the app. If you land inside the app with no login, stop: go back to step 4 and remove the hostname in step 5 until it is fixed.
+2. Repeat for the other services.
+3. In the Jellyfin phone or TV app, use `https://jellyfin.example.com` (no port) as the server address.
 
 ## Troubleshooting
 
@@ -102,14 +99,16 @@ Access is the outer door; the apps need their own lock too.
 | Tunnel not Healthy | `sudo docker logs cloudflared`. Wrong or truncated token in `.env`; re-copy only the long string. |
 | 502 Bad Gateway on an arr hostname | The URL in the public hostname is wrong. Use the container name and port exactly as in the table, and confirm the container runs (`sudo docker ps`). |
 | qBittorrent page loads but login fails or says Unauthorized | qBittorrent can reject logins that come through a proxy. In Tools > Options > Web UI, add `qbit.example.com` to **Server domains**, or untick **Enable Host header validation** (and, if needed, CSRF protection). This is general qBittorrent behaviour, so try it if you see the problem. |
+| Locked out of qBittorrent after failed logins | `sudo docker restart qbittorrent` (see the risk above). |
 | 502 or timeout on Jellyfin only | Containers can't reach the NAS's own address. Check the IP and port, then in DSM check Control Panel > Security > Firewall isn't blocking the Docker network. |
-| Jellyfin works on the LAN but the apps fail remotely | Check you didn't put Jellyfin behind Access, and the app uses `https://jellyfin.example.com` with no port. |
-| Cloudflare suspends or limits the tunnel | Possibly the video terms above. Move Jellyfin to another remote-access method. |
+| Jellyfin works on the LAN but the apps fail remotely | Use `https://jellyfin.example.com` with no port as the server address. |
 
 ## Turning it off
+
+Stop remote access immediately:
 
 ```sh
 sudo docker compose --profile tunnel stop cloudflared
 ```
 
-Or delete the tunnel in the Cloudflare dashboard, which also cuts access immediately.
+Or delete the tunnel in the Cloudflare dashboard, which also cuts access straight away.

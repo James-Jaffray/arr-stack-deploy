@@ -102,7 +102,8 @@ services:
   # Optional: only starts with `docker compose --profile tunnel up -d`.
   # Public hostnames in the Cloudflare dashboard point at sonarr:8989, radarr:7878,
   # prowlarr:9696, or gluetun:8080 for qBittorrent (it has no network of its own, so never
-  # `qbittorrent`). Put Cloudflare Access in front of all of those.
+  # `qbittorrent`). There is no Cloudflare Access in this setup, so every app must have its own
+  # login enabled before its hostname is added.
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
