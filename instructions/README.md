@@ -10,4 +10,6 @@ Start with the initial setup (preparing the NAS and getting the files onto it), 
 5. [Cloudflare Tunnel](05-cloudflare-tunnel.md): only if you want outside access
 6. [Setup script switches](06-setup-script-switches.md)
 
+Once it's running, keep [`runbook.md`](runbook.md) handy: the everyday commands, where things live and a quick diagnosis table.
+
 After each section, `sh setup.sh --check` tells you what is still wrong.
