@@ -23,7 +23,7 @@ qBittorrent, Sonarr and Radarr all mount the same `DATA_DIR` at `/data`, so fini
 
 1. Get the repo onto the machine (git clone, or copy the folder **without** `.env` and `config/`).
 2. `cp .env.example .env`
-3. Edit `.env`: every `CHANGE_ME` must be replaced (VPN details, paths, user IDs, home subnet).
+3. Edit `.env`: every `CHANGE_ME` must be replaced (VPN details, paths, user IDs, home subnet). The [`instructions/`](instructions/README.md) folder explains, section by section, where to find each value.
 4. `sh setup.sh --check` (changes nothing, lists every problem at once).
 5. `sh setup.sh` (creates folders, fixes ownership).
 6. `docker compose up -d`
