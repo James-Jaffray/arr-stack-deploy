@@ -1,0 +1,5 @@
+# Repo is often authored on Windows and run on a Synology: always store and
+# check out LF, regardless of the user's core.autocrlf.
+* text=auto eol=lf
+*.sh text eol=lf
+*.yml text eol=lf

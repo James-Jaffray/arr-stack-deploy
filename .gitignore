@@ -1,0 +1,15 @@
+# Secrets and per-machine state: never commit these
+.env
+.env.*
+!.env.example
+config/
+# Relative ./data used for Windows testing
+data/
+
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+@eaDir/
