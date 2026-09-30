@@ -57,10 +57,14 @@ Your home network written as a range. It lets your other devices reach qBittorre
 
 ## Check it
 
-Copy the repo to `/volume1/docker/arr-stack`, create `.env`, then [SSH in](00-initial-setup.md#2-how-to-ssh-into-the-nas) and run:
+Once these six values are in your `.env` on the NAS, [SSH in](00-initial-setup.md#2-how-to-ssh-into-the-nas) and run:
 
 ```sh
+cd /volume1/docker/arr-stack
 sudo sh setup.sh --check
 ```
 
-It flags a non-numeric `PUID`/`PGID` and a `LAN_SUBNET` that isn't in `a.b.c.d/nn` form. Running it as `sudo` lets `setup.sh` fix folder ownership later.
+`--check` only reads `.env` and reports problems; it changes nothing.
+
+- For this section it flags a `PUID`/`PGID` that isn't a number, and a `LAN_SUBNET` that isn't in the form `192.168.1.0/24`.
+- It will **also** list the VPN values as "still CHANGE_ME", because you haven't filled those in yet (guide `03`). That's expected. You're done here when none of the lines it lists mention the six variables above.
