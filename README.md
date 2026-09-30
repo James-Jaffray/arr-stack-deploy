@@ -104,13 +104,21 @@ On a working build, export backups from Sonarr, Radarr and Prowlarr (Settings > 
 5. There is no Cloudflare Access here: each app is protected only by its own login. Turn those logins on (long unique passwords) **before** adding the hostnames.
 6. Follow the full walkthrough in [`instructions/05-cloudflare-tunnel.md`](instructions/05-cloudflare-tunnel.md).
 
-## 7. Updating
+## 7. Everyday commands and updating
 
-```sh
-docker compose pull && docker compose up -d
-docker restart qbittorrent   # needed if gluetun was recreated
-```
-Back up `CONFIG_DIR` and `.env` regularly. Images use `:latest`; once the client's setup is stable you can pin tags in `docker-compose.yml`.
+Three small scripts wrap the usual Docker commands. On a Synology add `sudo` in front (Docker needs it there).
+
+| Command | What it does |
+| --- | --- |
+| `sh scripts/deploy.sh` | Checks `.env`, creates folders, then starts the stack (`docker compose up -d`) and waits for the VPN to become healthy. Includes the Cloudflare tunnel automatically when `CLOUDFLARE_TUNNEL_TOKEN` is set in `.env`. |
+| `sh scripts/deploy.sh --pull` | Same, but downloads newer images first. **This is how you update.** |
+| `sh scripts/restart.sh` | Restarts everything. gluetun goes first, then qBittorrent (it must follow gluetun), then the rest. |
+| `sh scripts/restart.sh sonarr radarr` | Restarts only the services you name. Naming `gluetun` also restarts qBittorrent afterwards. |
+| `sh scripts/drop.sh` | Stops and **removes the containers** (asks first; add `--yes` to skip). Your settings (`CONFIG_DIR`) and your downloads and media (`DATA_DIR`) are **not** deleted, and `deploy.sh` brings it all back. |
+
+`deploy.sh --skip-setup` skips the `setup.sh` checks. Back up `CONFIG_DIR` and `.env` regularly. Images use `:latest`; once the client's setup is stable you can pin tags in `docker-compose.yml`.
+
+The plain Docker equivalents still work: `docker compose pull && docker compose up -d`, then `docker restart qbittorrent` if gluetun was recreated.
 
 ## 8. Troubleshooting
 
