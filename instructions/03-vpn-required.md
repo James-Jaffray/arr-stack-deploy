@@ -2,7 +2,7 @@
 
 Variables: `VPN_PROVIDER`, `VPN_TYPE`, `OPENVPN_USER`, `OPENVPN_PASSWORD`
 
-This setup is built around **PrivadoVPN**, the provider your existing Gluetun container uses. You need an active Privado subscription. Gluetun's own page for it: <https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/privado.md>
+This setup is built around **PrivadoVPN**, the provider your existing Gluetun container uses. You need an active **paid** Privado plan: Privado's help pages say manual OpenVPN setups (which is what Gluetun is) are not available on the free plan, so a free account would be rejected with `AUTH_FAILED`. Gluetun's own page for it: <https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/privado.md>
 
 **Treat the username and password like any other password.** Never commit them, paste them into chat, or put them anywhere except the NAS's `.env`.
 
@@ -28,7 +28,6 @@ These are your Privado VPN login details. They are **not your email address**: P
 
 If you're stuck, open a support ticket with Privado and ask for "the username and password for a manual OpenVPN setup".
 
-**Your own account on your own NAS:** you can read the working values from your existing Gluetun container in Container Manager (Container > gluetun > Details > Environment). For the friend's NAS, use the friend's own Privado account.
 
 **Connection limit:** Privado's help says a Premium account supports up to 10 connections. The NAS's Gluetun counts as one.
 
