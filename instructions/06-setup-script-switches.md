@@ -1,4 +1,4 @@
-# 5. Setup script switches (optional)
+# 6. Setup script switches (optional)
 
 Variable: `SKIP_TUN_CHECK`
 

@@ -1,4 +1,4 @@
-# 4. Cloudflare Tunnel (remote access)
+# 5. Cloudflare Tunnel (remote access)
 
 Variable: `CLOUDFLARE_TUNNEL_TOKEN`
 
@@ -51,7 +51,7 @@ Back in the Cloudflare tunnel page, its status should turn **Healthy**. No hostn
 
 ## 4. Turn on each app's own login (before adding hostnames)
 
-This is your only protection, so do it first. Open each app from inside the home network.
+This is your only protection, so do it first. Open each app from inside the home network (already connected to each other in `04-connecting-the-apps.md`).
 
 - **Sonarr, Radarr, Prowlarr:** Settings > General > Security. Set Authentication to a login form (for example **Forms**), and set **Authentication Required** to **Enabled**, not "Disabled for Local Addresses". Tunnel traffic reaches the apps from inside the Docker network, which they treat as local, so the "local addresses" option would skip the login entirely. Menu wording differs a little between versions. Set a username and a strong password.
 - **qBittorrent:** Tools > Options > Web UI. Change the password from the temporary one to a strong one. Leave "Bypass authentication for clients on localhost" and "Bypass authentication for clients in whitelisted IP subnets" **off**.

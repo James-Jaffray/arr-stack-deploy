@@ -29,7 +29,7 @@ qBittorrent, Sonarr and Radarr all mount the same `DATA_DIR` at `/data`, so fini
 6. `docker compose up -d`
 7. `sh scripts/verify.sh` (containers, VPN health, IP differs, web UIs answer).
 8. Optional: `sh scripts/verify.sh --killswitch`.
-9. Do the [first-run wiring](#4-first-run-wiring).
+9. Do the [first-run wiring](#4-first-run-wiring) (step by step in [`instructions/04-connecting-the-apps.md`](instructions/04-connecting-the-apps.md)).
 10. Back up `.env` and `CONFIG_DIR` somewhere safe.
 
 `./setup.sh` works if the executable bit survived; if not, `sh setup.sh` always works. `sh setup.sh --up` does steps 5 and 6 together.
@@ -70,6 +70,8 @@ qBittorrent, Sonarr and Radarr all mount the same `DATA_DIR` at `/data`, so fini
 
 ## 4. First-run wiring
 
+The full step-by-step version is in [`instructions/04-connecting-the-apps.md`](instructions/04-connecting-the-apps.md); this is the summary.
+
 Manual, done once. Container-internal names and paths are the same on every install.
 
 **qBittorrent** (`http://<host>:8080`)
@@ -100,7 +102,7 @@ On a working build, export backups from Sonarr, Radarr and Prowlarr (Settings > 
 3. `docker compose --profile tunnel up -d`
 4. In the tunnel, add public hostnames targeting `http://sonarr:8989`, `http://radarr:7878`, `http://prowlarr:9696`, `http://gluetun:8080` (qBittorrent: use `gluetun`, never `qbittorrent`) and, for Jellyfin, `http://<nas-ip>:8096`.
 5. There is no Cloudflare Access here: each app is protected only by its own login. Turn those logins on (long unique passwords) **before** adding the hostnames.
-6. Follow the full walkthrough in [`instructions/04-cloudflare-tunnel.md`](instructions/04-cloudflare-tunnel.md).
+6. Follow the full walkthrough in [`instructions/05-cloudflare-tunnel.md`](instructions/05-cloudflare-tunnel.md).
 
 ## 7. Updating
 
